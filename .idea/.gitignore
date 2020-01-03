@@ -1,2 +1,5 @@
 # Default ignored files
 /workspace.xml
+/gym-grid.iml
+*.iml
+*.xml
