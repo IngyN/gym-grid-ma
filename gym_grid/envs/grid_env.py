@@ -8,8 +8,9 @@ class GridEnv(gym.Env):
 
     def __init__(self, map_name='example', agents= 2):
         # read map + initialize
-        gw = GridWorld(map_name,agents)
-        pass
+
+        self.gw = GridWorld(map_name,agents)
+
 
     def step(self, action):
 
@@ -28,3 +29,7 @@ class GridEnv(gym.Env):
     def close(self):
         # close rendering
         pass
+
+
+if __name__ == "__main__":
+    env = GridEnv('SUNY')

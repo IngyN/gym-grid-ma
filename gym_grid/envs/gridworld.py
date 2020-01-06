@@ -43,19 +43,15 @@ class GridWorld:
         with open('maps/' + map + ".txt") as textFile:
             self.map = [line.split() for line in textFile]
         self.map = [[int(e) for e in row] for row in self.map]
+        self.map = np.asarray(self.map, dtype=np.float32)
 
         # grid preprocessing
         self.map, self.smap, self.coord = preprocessing(self.map, self.res)
 
-        self.nshields = int(np.max(self.smap))
-        print("Number of Shields: ", self.nshields, '\n')
-        self.shield_max = [2] * int(self.nshields)  # TODO -> make it based on shield morphology
+        # self.nshields = int(np.max(self.smap))
+        # print("Number of Shields: ", self.nshields, '\n')
+        # self.shield_max = [2] * int(self.nshields)  # TODO -> make it based on shield morphology
 
-        file = open('grid_shields/' + map + '/shield_num.txt', 'w')
-        file.write(str(self.nshields))
-        file.close()
-
-        self.map = np.asarray(self.map)
         self.nstates = np.count_nonzero(self.map == 0)
         print(self.map)
         print(self.smap)

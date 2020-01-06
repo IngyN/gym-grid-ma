@@ -11,7 +11,7 @@ def preprocessing (map, res = [3,3]):
 
 	lswitch = 0
 	wswitch = 0
-	paddingh = [1]*length
+	paddingh = np.ones([length])
 
 	while length%res[1] or width%res[0]:
 
@@ -19,25 +19,23 @@ def preprocessing (map, res = [3,3]):
 			length += 1
 			if lswitch == 0:
 				# pad first column
-				for i in range(width ):
-					map[i].insert(0,1)
+				map=np.insert(map, 0, 1, axis=1)
 				# map.insert(0, paddingh)
 				lswitch = 1
 			else:
 				# pad last column
-				for i in range(width):
-					map[i].insert(length,1)
+				map = np.insert(map, map.shape[1], 1, axis=1)
 				lswitch = 0
 
 		if width%res[0] != 0:
 			width += 1
 			if wswitch == 0:
 				# pad first row
-				map.insert(0, paddingh)
+				map = np.insert(map, 0, 1, axis=0)
 				wswitch = 1
 			else:
 				# pad last row
-				map.insert(len(map), paddingh)
+				map = np.insert(map, map.shape[0], 1, axis=0)
 				wswitch = 0
 
 	# fill smap with shieldnum for each cell
