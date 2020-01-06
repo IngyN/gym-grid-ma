@@ -1,5 +1,10 @@
 from enum import Enum
-from gym_grid.envs.grid_preprocessing import preprocessing
+
+terminal = True
+if terminal:
+    from grid_preprocessing import preprocessing
+else:
+    from gym_grid.envs.grid_preprocessing import preprocessing
 import numpy as np
 
 
@@ -46,7 +51,7 @@ class GridWorld:
         self.map = np.asarray(self.map, dtype=np.float32)
 
         # grid preprocessing
-        self.map, self.smap, self.coord = preprocessing(self.map, self.res)
+        self.map, self.smap, self.coord, self.pads = preprocessing(self.map, self.res)
 
         # self.nshields = int(np.max(self.smap))
         # print("Number of Shields: ", self.nshields, '\n')
@@ -54,9 +59,11 @@ class GridWorld:
 
         self.nstates = np.count_nonzero(self.map == 0)
         print(self.map)
-        print(self.smap)
-        print('Initialization complete')
+        # print(self.smap)
+
         print('Number of reachable states : ', self.nstates)
+
+        print('Initialization complete')
 
 
     def is_target(self, n, x, y):
@@ -238,3 +245,6 @@ class GridWorld:
             # unrecognized map
             print("unrecognized map error")
             exit(1)
+
+        self.init = np.asarray(self.init)
+        self.targets = np.asarray(self.targets)

@@ -11,7 +11,7 @@ def preprocessing (map, res = [3,3]):
 
 	lswitch = 0
 	wswitch = 0
-	paddingh = np.ones([length])
+	padding = np.zeros([2])
 
 	while length%res[1] or width%res[0]:
 
@@ -20,7 +20,7 @@ def preprocessing (map, res = [3,3]):
 			if lswitch == 0:
 				# pad first column
 				map=np.insert(map, 0, 1, axis=1)
-				# map.insert(0, paddingh)
+				padding[1] += 1
 				lswitch = 1
 			else:
 				# pad last column
@@ -32,6 +32,7 @@ def preprocessing (map, res = [3,3]):
 			if wswitch == 0:
 				# pad first row
 				map = np.insert(map, 0, 1, axis=0)
+				padding[0] += 1
 				wswitch = 1
 			else:
 				# pad last row
@@ -59,7 +60,7 @@ def preprocessing (map, res = [3,3]):
 
 	coord = [[v1[i], v2[j]] for i in range(int(width/res[0])) for j in range(int(length/res[1]))]
 
-	return map, smap, coord
+	return map, smap, coord, padding
 
 # main
 if __name__ == "__main__":
