@@ -32,9 +32,16 @@ class GridEnv(gym.Env):
         self.goal_flag = np.zeros(self.nagents)
 
         # Rendering :
-        # self.map_colors =colors.ListedColormap(['white', 'grey', 'red'])
-        self.map_colors = plt.get_cmap('YlGnBu')
-        self.norm = colors.BoundaryNorm([-100, 0, 20, 100], self.map_colors.N)
+        # self.map_colors =colors.ListedColormap(['white', 'grey'])
+        colormap = plt.get_cmap('ocean', 50)
+        vircolors = colormap(np.linspace(0, 1, 50))
+        self.map_colors = np.zeros([2, 4])
+        self.map_colors[1, :] = np.array([0.15, 0.18, 0.25, 1])
+        self.map_colors[0, :] = np.array([1, 1, 1, 1])
+        print(self.map_colors)
+        self.map_colors = colors.ListedColormap(self.map_colors)
+        # self.map_colors = plt.get_cmap('Greys')
+        self.norm = colors.BoundaryNorm([0, 0, 1, 1], self.map_colors.N)
         plt.ion()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
@@ -172,7 +179,7 @@ class GridEnv(gym.Env):
 
         # plot agents
         # 3 = purple, 10 = yellow
-        self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=[3, 10], s=55)
+        self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=[3, 10], s=95)
 
         # plot format
         self.ax.set_title('Map')
