@@ -2,6 +2,7 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
+import time
 
 terminal = True
 #
@@ -18,7 +19,7 @@ class GridEnv(gym.Env):
 
     def __init__(self, map_name='example', agents= 2):
         # read map + initialize
-
+        # TODO add version without padding
         self.gw = GridWorld(map_name,agents)
         self.nrows = self.gw.map.shape[0]
         self.ncols = self.gw.map.shape[1]
@@ -50,22 +51,21 @@ class GridEnv(gym.Env):
             priority = np.random.permutation(priority)
 
         rev_priority = priority[::-1]
-        old_pos = self.pos
-        desired = np.zeros([self.nagents, 2])
+        old_pos = self.pos.astype(int)
+        desired = np.zeros([self.nagents, 2], dtype=int)
         visited = np.zeros([self.nagents])
         rewards = np.zeros([self.nagents])
 
         # find desired state
         # format: map size X #agents +1 : for each map cell : 1 boolean array of nagents + agent that is already there
         temp = np.ones([self.nrows, self.ncols, self.nagents + 1]) * -1
-        # TODO give negative reward for trying to go out of bounds
         oob = np.zeros([self.nagents])
 
         for idx in range(self.nagents):
             i = rev_priority[idx]
             desired[i], oob[i] = self._get_next_state(self.pos[i], actions[i], self.goal_flag[i])
-            temp[desired[i]][i] = 1
-            temp[old_pos[i]][self.nagents] = i  # who is already there
+            temp[desired[i][0]][desired[i][1]][i] = 1
+            temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = i  # who is already there
 
         print(desired)
 
@@ -74,24 +74,24 @@ class GridEnv(gym.Env):
 
             if not visited[i] and not self.goal_flag[i]:
                 visited[i] = 1
-                occ = temp[desired[i]][:-1]  # who wants the spot -> boolean
-                wall = self.gw.map[desired[i]]
+                occ = temp[desired[i][0]][desired[i][1]][:-1]  # who wants the spot -> boolean
+                wall = self.gw.map[desired[i][0]][desired[i][1]]
                 idx_occ = np.where(occ > 0)
-                j = temp[desired[i]][self.nagents]
+                j = int(temp[desired[i][0]][desired[i][1]][self.nagents])
                 d_sum = np.sum(occ[occ > 0])
 
                 # check for swap
                 swap = False
                 if d_sum > 0 and j != i and j >= 0:
-                    swap = (desired[j] == old_pos[i])
+                    swap = np.all(desired[j] == old_pos[i])
 
                 # collisions
                 if d_sum > 1:
                     if share and j >= 0:
                         if self.goal_flag[j] and (desired[i] == self.targets[i]):
                             self.pos[i] = desired[i]
-                            temp[desired[i]][self.nagents] = i
-                            temp[old_pos[i]][self.nagents] = -1
+                            temp[desired[i][0]][desired[i][1]][self.nagents] = i
+                            temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = -1
 
                     else:
                         for k in idx_occ:
@@ -110,12 +110,12 @@ class GridEnv(gym.Env):
 
                 else:
                     rewards[i] = -1
-                    temp[desired[i]][self.nagents] = i
-                    temp[old_pos[i]][self.nagents] = -1
+                    temp[desired[i][0]][desired[i][1]][self.nagents] = i
+                    temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = -1
                     self.pos[i] = desired[i]
 
-                if noop and old_pos == self.pos:
-                    rewards = -10
+                if noop and np.all(old_pos[i] == self.pos[i]):
+                    rewards[i] = -10
 
                 # if distance:
                 #     inrange = 1
@@ -123,7 +123,7 @@ class GridEnv(gym.Env):
                 #         # TODO distance rewards
                 #         pass
 
-            if not self.goal_flag[i] and self.pos[i] == self.targets[i]:
+            if not self.goal_flag[i] and np.all(self.pos[i] == self.targets[i]):
                 rewards[i] = 100
                 self.goal_flag[i] = 1
 
@@ -132,7 +132,7 @@ class GridEnv(gym.Env):
         return self.pos, rewards, {}, done  # TODO check obs again later
 
     def _get_next_state(self, pos, action, goal_flag):
-        new_p = pos
+        new_p = pos.astype(int)
         oob = True
         # action 0 = nothing
         if not goal_flag:
@@ -188,8 +188,18 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv('SUNY')
+    env = GridEnv('ISR')
     env.render()
-    env.step([4, 3])
-    a = input()
-    print(a)
+    a = input('next:\n')
+    obs, rew, _, _ = env.step([4, 3])
+    env.render()
+    print("Obs: ", obs, "  rew: ", rew)
+    a = input('next:\n')
+    obs, rew, _, _ = env.step([4, 2])
+    print("Obs: ", obs, "  rew: ", rew)
+    env.render()
+    a = input('next:\n')
+    obs, rew, _, _ = env.step([4, 3])
+    env.render()
+    print("Obs: ", obs, "  rew: ", rew)
+    a = input('next:\n')
