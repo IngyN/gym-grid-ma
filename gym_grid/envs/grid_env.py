@@ -4,7 +4,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 
-terminal = True
+terminal = False
 #
 if terminal:
     from gridworld import GridWorld
@@ -17,19 +17,23 @@ import matplotlib.pyplot as plt
 class GridEnv(gym.Env):
     metadata = {'render.modes':['human']}
 
-    def __init__(self, map_name='example', agents= 2):
+    def __init__(self, map_name='example', agents=2, padding=False, debug=False):
         # read map + initialize
         # TODO add version without padding
-        self.gw = GridWorld(map_name,agents)
+        self.gw = GridWorld(map_name, agents, padding)
         self.nrows = self.gw.map.shape[0]
         self.ncols = self.gw.map.shape[1]
         self.nagents = agents
         self.pos = self.gw.init[:agents]
         self.targets = self.gw.targets[:agents]
         # update init positions based on padding
-        self.pos = np.add(self.pos, self.gw.pads)
-        self.targets = np.add(self.targets, self.gw.pads)
+        if padding:
+            self.pos = np.add(self.pos, self.gw.pads)
+            self.targets = np.add(self.targets, self.gw.pads)
+
+        self.start_pos = self.pos
         self.goal_flag = np.zeros(self.nagents)
+        self.debug = debug
 
         # Rendering :
         # self.map_colors =colors.ListedColormap(['white', 'grey'])
@@ -38,7 +42,6 @@ class GridEnv(gym.Env):
         self.map_colors = np.zeros([2, 4])
         self.map_colors[1, :] = np.array([0.15, 0.18, 0.25, 1])
         self.map_colors[0, :] = np.array([1, 1, 1, 1])
-        print(self.map_colors)
         self.map_colors = colors.ListedColormap(self.map_colors)
         # self.map_colors = plt.get_cmap('Greys')
         self.norm = colors.BoundaryNorm([0, 0, 1, 1], self.map_colors.N)
@@ -47,8 +50,9 @@ class GridEnv(gym.Env):
         self.ax = self.fig.add_subplot(111)
         self.ax.imshow(self.gw.map)
 
-        print(self.pos)
-        print(self.pos[:, 0])
+        if self.debug:
+            print(self.pos)
+            print(self.pos[:, 0])
 
     def step(self, actions, noop=True, distance=False, share=False, random_priority=True):
 
@@ -74,7 +78,8 @@ class GridEnv(gym.Env):
             temp[desired[i][0]][desired[i][1]][i] = 1
             temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = i  # who is already there
 
-        print(desired)
+        if self.debug:
+            print('desired:', desired)
 
         for idx in range(self.nagents):
             i = priority[idx]
@@ -167,12 +172,12 @@ class GridEnv(gym.Env):
 
     def reset(self):
         #reset to start.
-        self.pos = self.gw.init[:self.nagents]
+        self.pos = self.start_pos
         self.goal_flag = np.zeros(self.nagents)
         self.ax.clear()
 
     def render(self, mode='human'):
-        print("Rendering...")
+        # print("Rendering...")
         self.ax.clear()
         # plot map
         self.ax.imshow(self.gw.map, cmap=self.map_colors)
@@ -195,7 +200,7 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv('ISR')
+    env = GridEnv()
     env.render()
     a = input('next:\n')
     obs, rew, _, _ = env.step([4, 3])

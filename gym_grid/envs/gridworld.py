@@ -1,6 +1,7 @@
 from enum import Enum
+import os
 
-terminal = True
+terminal = False
 if terminal:
     from grid_preprocessing import preprocessing
 else:
@@ -22,7 +23,7 @@ class Action(Enum):
         return [[0, 0], [-1, 0], [1, 0], [0, -1],  [0, 1]]
 
 class GridWorld:
-    def __init__(self, map, n):
+    def __init__(self, map, n, padding):
 
         self.collision = True
         self.distance = False
@@ -51,7 +52,9 @@ class GridWorld:
         self.map = np.asarray(self.map, dtype=np.float32)
 
         # grid preprocessing
-        self.map, self.smap, self.coord, self.pads = preprocessing(self.map, self.res)
+        self.pads = np.zeros([2])
+        if padding:
+            self.map, self.smap, self.coord, self.pads = preprocessing(self.map, self.res)
 
         # self.nshields = int(np.max(self.smap))
         # print("Number of Shields: ", self.nshields, '\n')
