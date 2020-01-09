@@ -12,7 +12,7 @@ else:
     from gym_grid.envs.gridworld import GridWorld
 
 from matplotlib import colors
-import matplotlib.pyplot as plt
+import matplotlib.pylab as plt
 
 class GridEnv(gym.Env):
     metadata = {'render.modes':['human']}
@@ -45,10 +45,14 @@ class GridEnv(gym.Env):
         self.map_colors = colors.ListedColormap(self.map_colors)
         # self.map_colors = plt.get_cmap('Greys')
         self.norm = colors.BoundaryNorm([0, 0, 1, 1], self.map_colors.N)
-        plt.ion()
+
+        plt.ioff()
+        # plt.ion()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
-        self.ax.imshow(self.gw.map)
+        self.render(first=True)
+        plt.show(block=False)
+        plt.ion()
 
         if self.debug:
             print(self.pos)
@@ -176,7 +180,7 @@ class GridEnv(gym.Env):
         self.goal_flag = np.zeros(self.nagents)
         self.ax.clear()
 
-    def render(self, mode='human'):
+    def render(self, first=False, mode='human'):
         # print("Rendering...")
         self.ax.clear()
         # plot map
@@ -184,34 +188,41 @@ class GridEnv(gym.Env):
 
         # plot agents
         # 3 = purple, 10 = yellow
-        self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=[3, 10], s=95)
+        p_colors = [3, 10, 5, 8, 15]
+        self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=p_colors[:self.nagents], s=110)
 
         # plot format
         self.ax.set_title('Map')
         self.ax.xaxis.set_ticks(np.arange(0, self.ncols, 1.0))
         self.ax.yaxis.set_ticks(np.arange(0, self.nrows, 1.0))
         self.ax.xaxis.tick_top()
+
+        self.ax.relim()
+        self.ax.autoscale_view(True, True, True)
         # self.fig.subplots_adjust(top=0.85)
         self.fig.canvas.draw()
 
+        # self.fig.canvas.draw_idle()
+        time.sleep(2)
+
     def close(self):
         # close any open log file or sth.
-        pass
+        plt.close('all')
 
 
 if __name__ == "__main__":
     env = GridEnv()
     env.render()
-    a = input('next:\n')
+    # a = input('next:\n')
     obs, rew, _, _ = env.step([4, 3])
     env.render()
     print("Obs: ", obs, "  rew: ", rew)
-    a = input('next:\n')
+    # a = input('next:\n')
     obs, rew, _, _ = env.step([4, 2])
     print("Obs: ", obs, "  rew: ", rew)
     env.render()
-    a = input('next:\n')
+    # a = input('next:\n')
     obs, rew, _, _ = env.step([4, 4])
     env.render()
     print("Obs: ", obs, "  rew: ", rew)
-    a = input('next:\n')
+    # a = input('next:\n')
