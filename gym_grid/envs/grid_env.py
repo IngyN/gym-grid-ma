@@ -206,7 +206,7 @@ if __name__ == "__main__":
     print("Obs: ", obs, "  rew: ", rew)
     env.render()
     a = input('next:\n')
-    obs, rew, _, _ = env.step([4, 3])
+    obs, rew, _, _ = env.step([4, 4])
     env.render()
     print("Obs: ", obs, "  rew: ", rew)
     a = input('next:\n')
