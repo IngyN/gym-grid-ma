@@ -4,7 +4,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 
-terminal = False
+terminal = True
 #
 if terminal:
     from gridworld import GridWorld
@@ -201,9 +201,14 @@ class GridEnv(gym.Env):
         self.ax.autoscale_view(True, True, True)
         # self.fig.subplots_adjust(top=0.85)
         self.fig.canvas.draw()
+        plt.show(block=False)
 
         # self.fig.canvas.draw_idle()
-        time.sleep(2)
+        plt.pause(0.2)
+
+    def final_render(self):
+        plt.ioff()
+        plt.show(block=True)
 
     def close(self):
         # close any open log file or sth.
@@ -226,3 +231,5 @@ if __name__ == "__main__":
     env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
+
+    env.final_render()

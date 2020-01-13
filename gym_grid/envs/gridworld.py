@@ -1,7 +1,7 @@
 from enum import Enum
 import os
 
-terminal = False
+terminal = True
 if terminal:
     from grid_preprocessing import preprocessing
 else:
