@@ -182,7 +182,7 @@ class GridEnv(gym.Env):
         self.goal_flag = np.zeros(self.nagents, dtype = int)
         self.ax.clear()
 
-    def render(self, first=False, mode='human'):
+    def render(self, episode=-1, mode='human'):
         # print("Rendering...")
         self.ax.clear()
         # plot map
@@ -194,7 +194,10 @@ class GridEnv(gym.Env):
         self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=p_colors[:self.nagents], s=110)
 
         # plot format
-        self.ax.set_title('Map')
+        if episode== -1:
+            self.ax.set_title('Map')
+        else:
+            self.ax.set_title('Map - episode:'+str(episode))
         self.ax.xaxis.set_ticks(np.arange(0, self.ncols, 1.0))
         self.ax.yaxis.set_ticks(np.arange(0, self.nrows, 1.0))
         self.ax.xaxis.tick_top()
