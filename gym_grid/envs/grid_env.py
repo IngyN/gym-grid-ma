@@ -3,8 +3,8 @@ from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
 import time
-
-terminal = True
+from copy import deepcopy
+terminal = False
 #
 if terminal:
     from gridworld import GridWorld
@@ -31,8 +31,8 @@ class GridEnv(gym.Env):
             self.pos = np.add(self.pos, self.gw.pads)
             self.targets = np.add(self.targets, self.gw.pads)
 
-        self.start_pos = self.pos
-        self.goal_flag = np.zeros(self.nagents)
+        self.start_pos = deepcopy(self.pos)
+        self.goal_flag = np.zeros(self.nagents, dtype=int)
         self.debug = debug
 
         # Rendering :
@@ -174,10 +174,12 @@ class GridEnv(gym.Env):
 
         return new_p, oob
 
-    def reset(self):
+    def reset(self, debug=False):
         #reset to start.
-        self.pos = self.start_pos
-        self.goal_flag = np.zeros(self.nagents)
+        if debug:
+           print('starting at :', self.start_pos)
+        self.pos = deepcopy(self.start_pos)
+        self.goal_flag = np.zeros(self.nagents, dtype = int)
         self.ax.clear()
 
     def render(self, first=False, mode='human'):
@@ -204,7 +206,7 @@ class GridEnv(gym.Env):
         plt.show(block=False)
 
         # self.fig.canvas.draw_idle()
-        plt.pause(0.2)
+        plt.pause(0.1)
 
     def final_render(self):
         plt.ioff()
