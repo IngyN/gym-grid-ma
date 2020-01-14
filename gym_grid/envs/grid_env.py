@@ -50,7 +50,7 @@ class GridEnv(gym.Env):
         # plt.ion()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
-        self.render(first=True)
+        self.render()
         plt.show(block=False)
         plt.ion()
 
