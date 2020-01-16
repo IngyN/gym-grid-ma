@@ -46,12 +46,11 @@ class GridEnv(gym.Env):
         # self.map_colors = plt.get_cmap('Greys')
         self.norm = colors.BoundaryNorm([0, 0, 1, 1], self.map_colors.N)
 
-        plt.ioff()
         # plt.ion()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(111)
-        self.render()
-        plt.show(block=False)
+        # self.render()
+        # plt.show(block=False)
         plt.ion()
 
         if self.debug:
@@ -209,7 +208,7 @@ class GridEnv(gym.Env):
         plt.show(block=False)
 
         # self.fig.canvas.draw_idle()
-        plt.pause(0.1)
+        plt.pause(0.02)
 
     def final_render(self):
         plt.ioff()
