@@ -17,9 +17,8 @@ import matplotlib.pylab as plt
 class GridEnv(gym.Env):
     metadata = {'render.modes':['human']}
 
-    def __init__(self, map_name='example', agents=2, padding=False, debug=False):
+    def __init__(self, map_name='example', agents=2, padding=False, debug=False, norender=True):
         # read map + initialize
-        # TODO add version without padding
         self.gw = GridWorld(map_name, agents, padding)
         self.nrows = self.gw.map.shape[0]
         self.ncols = self.gw.map.shape[1]
@@ -47,11 +46,13 @@ class GridEnv(gym.Env):
         self.norm = colors.BoundaryNorm([0, 0, 1, 1], self.map_colors.N)
 
         # plt.ion()
-        self.fig = plt.figure()
-        self.ax = self.fig.add_subplot(111)
-        # self.render()
-        # plt.show(block=False)
-        plt.ion()
+        if not norender:
+            self.fig = plt.figure()
+            self.ax = self.fig.add_subplot(111)
+            # self.render()
+            # plt.show(block=False)
+            plt.ion()
+        self.norender = norender
 
         if self.debug:
             print(self.pos)
@@ -179,7 +180,8 @@ class GridEnv(gym.Env):
            print('starting at :', self.start_pos)
         self.pos = deepcopy(self.start_pos)
         self.goal_flag = np.zeros(self.nagents, dtype = int)
-        self.ax.clear()
+        if not self.norender:
+            self.ax.clear()
 
     def render(self, episode=-1, mode='human'):
         # print("Rendering...")
