@@ -58,6 +58,14 @@ class GridEnv(gym.Env):
             print(self.pos)
             print(self.pos[:, 0])
 
+    def set_targets(self, targets):  # change preset targets.
+        self.targets = targets
+
+    def set_start(self, start_pos):
+        self.pos = start_pos
+        self.start_pos = deepcopy(self.pos)
+
+
     def step(self, actions, noop=True, distance=False, share=False, random_priority=True):
 
         # random priority
@@ -93,7 +101,7 @@ class GridEnv(gym.Env):
                 occ = temp[desired[i][0]][desired[i][1]][:-1]  # who wants the spot -> boolean
                 wall = self.gw.map[desired[i][0]][desired[i][1]]
                 idx_occ = np.where(occ > 0)
-                j = int(temp[desired[i][0]][desired[i][1]][self.nagents])
+                j = int(temp[desired[i][0]][desired[i][1]][self.nagents])  # agent already in the spot
                 d_sum = np.sum(occ[occ > 0])
 
                 # check for swap
@@ -102,7 +110,7 @@ class GridEnv(gym.Env):
                     swap = np.all(desired[j] == old_pos[i])
 
                 # collisions
-                if d_sum > 1:
+                if d_sum > 1:  # more than one agent wants it
                     if share and j >= 0:
                         if self.goal_flag[j] and (desired[i] == self.targets[i]):
                             self.pos[i] = desired[i]
@@ -113,13 +121,30 @@ class GridEnv(gym.Env):
                         for k in idx_occ:
                             visited[k] = 1
                             rewards[k] = -10
-
-                elif wall:
-                    rewards[i] = -10
-
+                            temp[desired[i][0]][desired[i][1]][k] = -1
                 elif swap:
                     rewards[i] = -10
                     rewards[j] = -10
+
+                elif j != i and j >= 0:  # there's already someone there but we're not sure they will move.
+                    # if  oob,  or wall -> will not move for sure
+                    if self.gw.map[desired[j][0]][desired[j][1]] or oob[j]:
+                        # agent will not move
+                        rewards[i] = -10
+                        temp[desired[i][0]][desired[i][1]][i] = -1
+
+                    elif int(temp[desired[j][0]][desired[j][1]][self.nagents]) > 0:  # if occ
+                        # needs to wait TODO: make this recursive to go more than 1 step ahead. rethink tree idea
+                        rewards[i] = -10
+                        temp[desired[i][0]][desired[i][1]][i] = -1
+
+                    else:
+                        # can move
+                        self.pos[i] = desired[i]
+                        rewards[i] = -1
+
+                elif wall:
+                    rewards[i] = -10
 
                 elif oob[i]:  # out of bounds
                     rewards[i] = -10
@@ -138,6 +163,9 @@ class GridEnv(gym.Env):
                 #     for k in range(self.nagents):
                 #         # TODO distance rewards
                 #         pass
+
+            if self.goal_flag[i]:
+                rewards[i] = 0
 
             if not self.goal_flag[i] and np.all(self.pos[i] == self.targets[i]):
                 rewards[i] = 100
@@ -195,7 +223,7 @@ class GridEnv(gym.Env):
         self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=p_colors[:self.nagents], s=110)
 
         # plot format
-        if episode== -1:
+        if episode == -1:
             self.ax.set_title('Map')
         else:
             self.ax.set_title('Map - episode:'+str(episode))
@@ -222,19 +250,20 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv()
-    env.render()
+    env = GridEnv(norender=False)
+    # env.render()
     # a = input('next:\n')
-    obs, rew, _, _ = env.step([4, 3])
+    env.pos = np.array([[1, 2], [0, 2]])
+    obs, rew, _, _ = env.step([4, 0])
     env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
-    obs, rew, _, _ = env.step([4, 2])
+    obs, rew, _, _ = env.step([1, 3])
     print("Obs: ", obs, "  rew: ", rew)
-    env.render()
+    # env.render()
     # a = input('next:\n')
-    obs, rew, _, _ = env.step([4, 4])
-    env.render()
+    obs, rew, _, _ = env.step([1, 2])
+    # env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
 
