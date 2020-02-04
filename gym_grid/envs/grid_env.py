@@ -59,10 +59,10 @@ class GridEnv(gym.Env):
             print(self.pos[:, 0])
 
     def set_targets(self, targets):  # change preset targets.
-        self.targets = targets
+        self.targets = np.array([targets])
 
     def set_start(self, start_pos):
-        self.pos = start_pos
+        self.pos = np.array([start_pos])
         self.start_pos = deepcopy(self.pos)
 
 
