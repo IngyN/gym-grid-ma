@@ -164,6 +164,8 @@ class GridEnv(gym.Env):
                 #         # TODO distance rewards
                 #         pass
 
+        for idx in range(self.nagents):
+            i = priority[idx]
             if self.goal_flag[i]:
                 rewards[i] = 0
 
@@ -250,11 +252,11 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv(norender=False)
+    env = GridEnv(map_name='ISR', norender=False)
     # env.render()
     # a = input('next:\n')
-    env.pos = np.array([[1, 2], [0, 2]])
-    obs, rew, _, _ = env.step([4, 0])
+    env.pos = np.array([[7, 4], [6, 3]])
+    obs, rew, _, _ = env.step([1, 2])
     env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
