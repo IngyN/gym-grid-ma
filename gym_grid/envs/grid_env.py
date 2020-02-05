@@ -242,9 +242,9 @@ class GridEnv(gym.Env):
 
             # self.fig.canvas.draw_idle()
             if speed == 1:
-                plt.pause(0.02)
+                plt.pause(0.05)
             elif speed == 2:
-                plt.pause(0.001)
+                plt.pause(0.02)
 
     def final_render(self):
         plt.ioff()
