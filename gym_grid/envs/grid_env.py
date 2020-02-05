@@ -213,34 +213,38 @@ class GridEnv(gym.Env):
         if not self.norender:
             self.ax.clear()
 
-    def render(self, episode=-1, mode='human'):
+    def render(self, episode=-1, mode='human', speed=1):
         # print("Rendering...")
-        self.ax.clear()
-        # plot map
-        self.ax.imshow(self.gw.map, cmap=self.map_colors)
+        if speed != 0:
+            self.ax.clear()
+            # plot map
+            self.ax.imshow(self.gw.map, cmap=self.map_colors)
 
-        # plot agents
-        # 3 = purple, 10 = yellow
-        p_colors = [3, 10, 5, 8, 15]
-        self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=p_colors[:self.nagents], s=110)
+            # plot agents
+            # 3 = purple, 10 = yellow
+            p_colors = [3, 10, 5, 8, 15]
+            self.ax.scatter(self.pos[:, 1], self.pos[:, 0], c=p_colors[:self.nagents], s=110)
 
-        # plot format
-        if episode == -1:
-            self.ax.set_title('Map')
-        else:
-            self.ax.set_title('Map - episode:'+str(episode))
-        self.ax.xaxis.set_ticks(np.arange(0, self.ncols, 1.0))
-        self.ax.yaxis.set_ticks(np.arange(0, self.nrows, 1.0))
-        self.ax.xaxis.tick_top()
+            # plot format
+            if episode == -1:
+                self.ax.set_title('Map')
+            else:
+                self.ax.set_title('Map - episode:' + str(episode))
+            self.ax.xaxis.set_ticks(np.arange(0, self.ncols, 1.0))
+            self.ax.yaxis.set_ticks(np.arange(0, self.nrows, 1.0))
+            self.ax.xaxis.tick_top()
 
-        self.ax.relim()
-        self.ax.autoscale_view(True, True, True)
-        # self.fig.subplots_adjust(top=0.85)
-        self.fig.canvas.draw()
-        plt.show(block=False)
+            self.ax.relim()
+            self.ax.autoscale_view(True, True, True)
+            # self.fig.subplots_adjust(top=0.85)
+            self.fig.canvas.draw()
+            plt.show(block=False)
 
-        # self.fig.canvas.draw_idle()
-        plt.pause(0.02)
+            # self.fig.canvas.draw_idle()
+            if speed == 1:
+                plt.pause(0.02)
+            elif speed == 2:
+                plt.pause(0.001)
 
     def final_render(self):
         plt.ioff()
