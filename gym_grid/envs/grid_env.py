@@ -17,14 +17,14 @@ import matplotlib.pylab as plt
 class GridEnv(gym.Env):
     metadata = {'render.modes':['human']}
 
-    def __init__(self, map_name='example', agents=2, padding=False, debug=False, norender=True):
+    def __init__(self, map_name='example', nagents=2, padding=False, debug=False, norender=True):
         # read map + initialize
-        self.gw = GridWorld(map_name, agents, padding)
+        self.gw = GridWorld(map_name, nagents, padding)
         self.nrows = self.gw.map.shape[0]
         self.ncols = self.gw.map.shape[1]
-        self.nagents = agents
-        self.pos = self.gw.init[:agents]
-        self.targets = self.gw.targets[:agents]
+        self.nagents = nagents
+        self.pos = self.gw.init[:nagents]
+        self.targets = self.gw.targets[:nagents]
         # update init positions based on padding
         if padding:
             self.pos = np.add(self.pos, self.gw.pads)
@@ -137,6 +137,11 @@ class GridEnv(gym.Env):
                         # needs to wait TODO: make this recursive to go more than 1 step ahead. rethink tree idea
                         rewards[i] = -10
                         temp[desired[i][0]][desired[i][1]][i] = -1
+
+                    elif visited[j] and temp[desired[j][0]][desired[j][1]][
+                        j] == -1:  # if this agent was visited and will not move
+                        rewards[i] = -10
+                        temp[desired[j][0]][desired[j][1]][i] = -1
 
                     else:
                         # can move
@@ -256,21 +261,21 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv(map_name='ISR', norender=False)
+    env = GridEnv(map_name='ISR', nagents=3, norender=False)
     # env.render()
     # a = input('next:\n')
-    env.pos = np.array([[7, 4], [6, 3]])
-    obs, rew, _, _ = env.step([1, 2])
-    env.render()
-    print("Obs: ", obs, "  rew: ", rew)
-    # a = input('next:\n')
-    obs, rew, _, _ = env.step([1, 3])
-    print("Obs: ", obs, "  rew: ", rew)
+    env.pos = np.array([[8, 2], [9, 2], [7, 3]])
+    obs, rew, _, _ = env.step([4, 1, 2])
     # env.render()
+    print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
-    obs, rew, _, _ = env.step([1, 2])
+    obs, rew, _, _ = env.step([3, 1, 0])
+    # env.render()
+    print("Obs: ", obs, "  rew: ", rew)
+    # a = input('next:\n')
+    obs, rew, _, _ = env.step([2, 1, 0])
     # env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
 
-    env.final_render()
+    # env.final_render()
