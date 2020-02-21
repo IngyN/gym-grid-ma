@@ -78,6 +78,7 @@ class GridEnv(gym.Env):
         desired = np.zeros([self.nagents, 2], dtype=int)
         visited = np.zeros([self.nagents])
         rewards = np.zeros([self.nagents])
+        coll = 0
 
         # find desired state
         # format: map size X #agents +1 : for each map cell : 1 boolean array of nagents + agent that is already there
@@ -118,13 +119,15 @@ class GridEnv(gym.Env):
                             temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = -1
 
                     else:
-                        for k in idx_occ:
+                        for k in idx_occ[0]:
                             visited[k] = 1
                             rewards[k] = -10
                             temp[desired[i][0]][desired[i][1]][k] = -1
+                            coll += 1
                 elif swap:
                     rewards[i] = -10
                     rewards[j] = -10
+                    coll = self.nagents
 
                 elif j != i and j >= 0:  # there's already someone there but we're not sure they will move.
                     # if  oob,  or wall -> will not move for sure
@@ -132,16 +135,19 @@ class GridEnv(gym.Env):
                         # agent will not move
                         rewards[i] = -10
                         temp[desired[i][0]][desired[i][1]][i] = -1
+                        coll += 1
 
                     elif int(temp[desired[j][0]][desired[j][1]][self.nagents]) > 0:  # if occ
                         # needs to wait TODO: make this recursive to go more than 1 step ahead. rethink tree idea
                         rewards[i] = -10
                         temp[desired[i][0]][desired[i][1]][i] = -1
+                        coll += 1
 
-                    elif visited[j] and temp[desired[j][0]][desired[j][1]][
-                        j] == -1:  # if this agent was visited and will not move
+                    elif visited[j] and temp[desired[j][0]][desired[j][1]][j] == -1:
+                        # if this agent was visited and will not move
                         rewards[i] = -10
                         temp[desired[j][0]][desired[j][1]][i] = -1
+                        coll += 1
 
                     else:
                         # can move
@@ -180,7 +186,7 @@ class GridEnv(gym.Env):
 
         done = np.all(self.goal_flag)
 
-        return self.pos, rewards, {}, done  # TODO check obs again later
+        return self.pos, rewards, {'collisions': coll}, done  # TODO check obs again later
 
     def _get_next_state(self, pos, action, goal_flag):
         new_p = pos.astype(int)
@@ -261,19 +267,19 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv(map_name='ISR', nagents=3, norender=False)
+    env = GridEnv(map_name='ISR', nagents=2, norender=False)
     # env.render()
     # a = input('next:\n')
-    env.pos = np.array([[8, 2], [9, 2], [7, 3]])
-    obs, rew, _, _ = env.step([4, 1, 2])
-    # env.render()
-    print("Obs: ", obs, "  rew: ", rew)
-    # a = input('next:\n')
-    obs, rew, _, _ = env.step([3, 1, 0])
+    env.pos = np.array([[5, 1], [7, 1]])
+    obs, rew, _, _ = env.step([2, 1])
     # env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
-    obs, rew, _, _ = env.step([2, 1, 0])
+    obs, rew, _, _ = env.step([3, 1])
+    # env.render()
+    print("Obs: ", obs, "  rew: ", rew)
+    # a = input('next:\n')
+    obs, rew, _, _ = env.step([2, 1])
     # env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
