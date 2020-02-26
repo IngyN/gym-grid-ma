@@ -111,7 +111,13 @@ class GridEnv(gym.Env):
                     swap = np.all(desired[j] == old_pos[i])
 
                 # collisions
-                if d_sum > 1:  # more than one agent wants it
+                if wall:
+                    rewards[i] = -10
+
+                elif oob[i]:  # out of bounds
+                    rewards[i] = -10
+
+                elif d_sum > 1:  # more than one agent wants it
                     if share and j >= 0:
                         if self.goal_flag[j] and (desired[i] == self.targets[i]):
                             self.pos[i] = desired[i]
@@ -123,11 +129,12 @@ class GridEnv(gym.Env):
                             visited[k] = 1
                             rewards[k] = -10
                             temp[desired[i][0]][desired[i][1]][k] = -1
-                            coll += 1
+                        coll += 1
                 elif swap:
                     rewards[i] = -10
                     rewards[j] = -10
-                    coll = self.nagents
+                    visited[j] = 1
+                    coll += 1
 
                 elif j != i and j >= 0:  # there's already someone there but we're not sure they will move.
                     # if  oob,  or wall -> will not move for sure
@@ -153,12 +160,6 @@ class GridEnv(gym.Env):
                         # can move
                         self.pos[i] = desired[i]
                         rewards[i] = -1
-
-                elif wall:
-                    rewards[i] = -10
-
-                elif oob[i]:  # out of bounds
-                    rewards[i] = -10
 
                 else:
                     rewards[i] = -1
@@ -270,8 +271,8 @@ if __name__ == "__main__":
     env = GridEnv(map_name='ISR', nagents=2, norender=False)
     # env.render()
     # a = input('next:\n')
-    env.pos = np.array([[5, 1], [7, 1]])
-    obs, rew, _, _ = env.step([2, 1])
+    env.pos = np.array([[7, 2], [6, 3]])
+    obs, rew, _, _ = env.step([1, 3])
     # env.render()
     print("Obs: ", obs, "  rew: ", rew)
     # a = input('next:\n')
