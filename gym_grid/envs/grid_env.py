@@ -47,7 +47,7 @@ class GridEnv(gym.Env):
 
         # plt.ion()
         if not norender:
-            self.fig = plt.figure()
+            self.fig = plt.figure(num=0)
             self.ax = self.fig.add_subplot(111)
             # self.render()
             # plt.show(block=False)
@@ -227,6 +227,7 @@ class GridEnv(gym.Env):
 
     def render(self, episode=-1, mode='human', speed=1):
         # print("Rendering...")
+        plt.ion()
         if speed != 0:
             self.ax.clear()
             # plot map
@@ -251,12 +252,15 @@ class GridEnv(gym.Env):
             # self.fig.subplots_adjust(top=0.85)
             self.fig.canvas.draw()
             plt.show(block=False)
+            # self.fig.show()
 
             # self.fig.canvas.draw_idle()
             if speed == 1:
                 plt.pause(0.05)
             elif speed == 2:
                 plt.pause(0.02)
+            else:
+                plt.pause(0.1)
 
     def final_render(self):
         plt.ioff()
