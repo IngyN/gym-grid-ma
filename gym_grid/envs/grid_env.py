@@ -190,7 +190,7 @@ class GridEnv(gym.Env):
 
         done = np.all(self.goal_flag)
 
-        return self.pos, rewards, {'collisions': coll}, done  # TODO check obs again later
+        return self.pos, rewards, {'collisions': coll}, self.goal_flag
 
     def _get_next_state(self, pos, action, goal_flag):
         new_p = pos.astype(int)
