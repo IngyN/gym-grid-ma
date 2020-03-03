@@ -13,6 +13,7 @@ else:
 
 from matplotlib import colors
 import matplotlib.pylab as plt
+from gym import spaces
 
 class GridEnv(gym.Env):
     metadata = {'render.modes':['human']}
@@ -25,6 +26,8 @@ class GridEnv(gym.Env):
         self.nagents = nagents
         self.pos = self.gw.init[:nagents]
         self.targets = self.gw.targets[:nagents]
+        self.action_space = [spaces.Discrete(6) for _ in range(nagents)]  # 0- 5
+        self.observation_space = spaces.MultiDiscrete([self.nrows, self.ncols])
         # update init positions based on padding
         if padding:
             self.pos = np.add(self.pos, self.gw.pads)
@@ -217,13 +220,15 @@ class GridEnv(gym.Env):
         return new_p, oob
 
     def reset(self, debug=False):
-        #reset to start.
+        # reset to start.
         if debug:
-           print('starting at :', self.start_pos)
+            print('starting at :', self.start_pos)
         self.pos = deepcopy(self.start_pos)
-        self.goal_flag = np.zeros(self.nagents, dtype = int)
+        self.goal_flag = np.zeros(self.nagents, dtype=int)
         if not self.norender:
             self.ax.clear()
+
+        return [np.array(self.pos[i]) for i in range(self.nagents)]
 
     def render(self, episode=-1, mode='human', speed=1):
         # print("Rendering...")
