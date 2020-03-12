@@ -4,6 +4,7 @@ from gym.utils import seeding
 import numpy as np
 import time
 from copy import deepcopy
+
 terminal = False
 #
 if terminal:
@@ -15,8 +16,9 @@ from matplotlib import colors
 import matplotlib.pylab as plt
 from gym import spaces
 
+
 class GridEnv(gym.Env):
-    metadata = {'render.modes':['human']}
+    metadata = {'render.modes': ['human']}
 
     def __init__(self, map_name='example', nagents=2, padding=False, debug=False, norender=True):
         # read map + initialize
@@ -68,7 +70,6 @@ class GridEnv(gym.Env):
         self.pos = np.array([start_pos])
         self.start_pos = deepcopy(self.pos)
 
-
     def step(self, actions, noop=True, distance=False, share=False, random_priority=True):
 
         # random priority
@@ -90,7 +91,7 @@ class GridEnv(gym.Env):
 
         for idx in range(self.nagents):
             i = rev_priority[idx]
-            desired[i], oob[i] = self._get_next_state(self.pos[i], actions[i], self.goal_flag[i])
+            desired[i], oob[i] = self.get_next_state(self.pos[i], actions[i], self.goal_flag[i])
             temp[desired[i][0]][desired[i][1]][i] = 1
             temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = i  # who is already there
 
@@ -192,7 +193,7 @@ class GridEnv(gym.Env):
 
         return self.pos, rewards, {'collisions': coll}, self.goal_flag
 
-    def _get_next_state(self, pos, action, goal_flag):
+    def get_next_state(self, pos, action, goal_flag):
         new_p = pos.astype(int)
         oob = True
         # action 0 = nothing
