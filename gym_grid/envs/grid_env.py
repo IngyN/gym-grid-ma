@@ -32,8 +32,8 @@ class GridEnv(gym.Env):
         self.observation_space = spaces.MultiDiscrete([self.nrows, self.ncols])
         # update init positions based on padding
         if padding:
-            self.pos = np.add(self.pos, self.gw.pads)
-            self.targets = np.add(self.targets, self.gw.pads)
+            self.pos = np.add(self.pos, self.gw.pads).astype(int)
+            self.targets = np.add(self.targets, self.gw.pads).astype(int)
 
         self.start_pos = deepcopy(self.pos)
         self.goal_flag = np.zeros(self.nagents, dtype=int)
