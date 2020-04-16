@@ -70,7 +70,7 @@ class GridEnv(gym.Env):
         self.pos = np.array([start_pos])
         self.start_pos = deepcopy(self.pos)
 
-    def step(self, actions, noop=True, distance=False, share=False, random_priority=True):
+    def step(self, actions, noop=True, distance=False, share=False, random_priority=True, collision_cost = 10):
 
         # random priority
         priority = np.arange(self.nagents)
@@ -131,12 +131,12 @@ class GridEnv(gym.Env):
                     else:
                         for k in idx_occ[0]:
                             visited[k] = 1
-                            rewards[k] = -10
+                            rewards[k] = -collision_cost
                             temp[desired[i][0]][desired[i][1]][k] = -1
                         coll += 1
                 elif swap:
-                    rewards[i] = -10
-                    rewards[j] = -10
+                    rewards[i] = -collision_cost
+                    rewards[j] = -collision_cost
                     visited[j] = 1
                     coll += 1
 
@@ -144,19 +144,19 @@ class GridEnv(gym.Env):
                     # if  oob,  or wall -> will not move for sure
                     if self.gw.map[desired[j][0]][desired[j][1]] or oob[j]:
                         # agent will not move
-                        rewards[i] = -10
+                        rewards[i] = -collision_cost
                         temp[desired[i][0]][desired[i][1]][i] = -1
                         coll += 1
 
                     elif int(temp[desired[j][0]][desired[j][1]][self.nagents]) > 0:  # if occ
                         # needs to wait TODO: make this recursive to go more than 1 step ahead. rethink tree idea
-                        rewards[i] = -10
+                        rewards[i] = -collision_cost
                         temp[desired[i][0]][desired[i][1]][i] = -1
                         coll += 1
 
                     elif visited[j] and temp[desired[j][0]][desired[j][1]][j] == -1:
                         # if this agent was visited and will not move
-                        rewards[i] = -10
+                        rewards[i] = -collision_cost
                         temp[desired[j][0]][desired[j][1]][i] = -1
                         coll += 1
 
@@ -171,7 +171,7 @@ class GridEnv(gym.Env):
                     temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = -1
                     self.pos[i] = desired[i]
 
-                if noop and np.all(old_pos[i] == self.pos[i]):
+                if noop and np.all(desired[i] == self.pos[i]):
                     rewards[i] = -10
 
                 # if distance:
@@ -278,7 +278,7 @@ class GridEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env = GridEnv(map_name='ISR', nagents=2, norender=False)
+    env = GridEnv(map_name='Pentagon', nagents=2, norender=False, padding=True)
     # env.render()
     # a = input('next:\n')
     env.pos = np.array([[7, 2], [6, 3]])
