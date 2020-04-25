@@ -91,7 +91,7 @@ class GridEnv(gym.Env):
 
         for idx in range(self.nagents):
             i = rev_priority[idx]
-            desired[i], oob[i] = self.get_next_state(self.pos[i], actions[i], self.goal_flag[i])
+            desired[i], oob[i], _ = self.get_next_state(self.pos[i], actions[i], self.goal_flag[i])
             temp[desired[i][0]][desired[i][1]][i] = 1
             temp[old_pos[i][0]][old_pos[i][1]][self.nagents] = i  # who is already there
 
@@ -196,6 +196,7 @@ class GridEnv(gym.Env):
     def get_next_state(self, pos, action, goal_flag):
         new_p = pos.astype(int)
         oob = True
+        obs = False
         # action 0 = nothing
         if not goal_flag:
             if action == 1:  # up
@@ -203,22 +204,28 @@ class GridEnv(gym.Env):
                     new_p[0] -= 1
                     oob = False
 
-            if action == 2:  # down
+            elif action == 2:  # down
                 if pos[0] < self.nrows - 1:
                     new_p[0] += 1
                     oob = False
 
-            if action == 3:  # left
+            elif action == 3:  # left
                 if pos[1] > 0:
                     new_p[1] -= 1
                     oob = False
 
-            if action == 4:  # right
+            elif action == 4:  # right
                 if pos[1] < self.ncols - 1:
                     new_p[1] += 1
                     oob = False
 
-        return new_p, oob
+            else:
+                oob = False
+
+        if self.gw.map[new_p[0]][new_p[1]]:
+            obs = True
+
+        return new_p, oob, obs
 
     def reset(self, debug=False):
         # reset to start.
