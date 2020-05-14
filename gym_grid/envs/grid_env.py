@@ -14,6 +14,9 @@ else:
 
 from matplotlib import colors
 import matplotlib.pylab as plt
+import warnings
+import matplotlib.cbook
+warnings.filterwarnings("ignore",category=matplotlib.cbook.mplDeprecation)
 from gym import spaces
 
 

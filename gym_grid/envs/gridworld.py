@@ -61,12 +61,12 @@ class GridWorld:
         # self.shield_max = [2] * int(self.nshields)  # TODO -> make it based on shield morphology
 
         self.nstates = np.count_nonzero(self.map == 0)
-        print(self.map)
+        # print(self.map)
         # print(self.smap)
 
-        print('Number of reachable states : ', self.nstates)
+        # print('Number of reachable states : ', self.nstates)
 
-        print('Initialization complete')
+        # print('Initialization complete')
 
 
     def is_target(self, n, x, y):
